@@ -15,12 +15,12 @@ def rename_desktop_icons():
             if current_label != label:
                 frappe.db.set_value("Desktop Icon", name, "label", label)
 
-    # Fix ERPNext Settings icon_type
+    # Fix ERPNext Settings icon_type and link
     if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
         frappe.db.set_value("Desktop Icon", "ERPNext Settings", {
             "icon_type": "App",
             "link_type": "External",
-            "link": "/desk/erpnext-settings",
+            "link": "/app/erpnext-settings",
             "link_to": None,
         })
 
