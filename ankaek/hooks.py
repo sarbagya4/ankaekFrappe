@@ -255,7 +255,6 @@ login_logo_url = "/assets/ankaek/images/logo.jpg"
 favicon = "/assets/ankaek/images/favicon.ico"
 fixtures = [
     {"dt": "Desktop Icon"},
-    {"dt": "Workspace"},
     {"dt": "Website Settings", "filters": [["name", "=", "Website Settings"]]},
 ]
 after_migrate = ["ankaek.install.after_install"]
