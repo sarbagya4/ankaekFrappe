@@ -2,6 +2,7 @@ import frappe
 
 def after_install():
     rename_desktop_icons()
+    configure_website_settings()
 
 def rename_desktop_icons():
     renames = [
@@ -15,7 +16,7 @@ def rename_desktop_icons():
             if current_label != label:
                 frappe.db.set_value("Desktop Icon", name, "label", label)
 
-    # Fix ERPNext Settings icon_type and link
+    # Fix ERPNext Settings — icon type and link
     if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
         frappe.db.set_value("Desktop Icon", "ERPNext Settings", {
             "icon_type": "App",
@@ -28,4 +29,11 @@ def rename_desktop_icons():
     if frappe.db.exists("Desktop Icon", "Frappe HR"):
         frappe.db.set_value("Desktop Icon", "Frappe HR", "link", "/desk/hr-setup")
 
+    frappe.db.commit()
+
+def configure_website_settings():
+    doc = frappe.get_doc("Website Settings")
+    doc.app_logo = "/assets/ankaek/images/logo.jpg"
+    doc.app_name = "ankaEK"
+    doc.save(ignore_permissions=True)
     frappe.db.commit()
