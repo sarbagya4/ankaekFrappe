@@ -24,4 +24,8 @@ def rename_desktop_icons():
             "link_to": None,
         })
 
+    # Fix Frappe HR link to valid workspace
+    if frappe.db.exists("Desktop Icon", "Frappe HR"):
+        frappe.db.set_value("Desktop Icon", "Frappe HR", "link", "/desk/hr-setup")
+
     frappe.db.commit()
