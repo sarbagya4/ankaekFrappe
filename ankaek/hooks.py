@@ -256,4 +256,6 @@ favicon = "/assets/ankaek/images/favicon.ico"
 fixtures = [
     {"dt": "Desktop Icon"},
     {"dt": "Workspace"},
+    {"dt": "Website Settings", "filters": [["name", "=", "Website Settings"]]},
 ]
+
