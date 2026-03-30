@@ -253,4 +253,5 @@ brand_html = "ankaEK"
 app_logo_url = "/assets/ankaek/images/logo.jpg"
 login_logo_url = "/assets/ankaek/images/logo.jpg"
 favicon = "/assets/ankaek/images/favicon.ico"
+after_install = "ankaek.install.after_install"
 after_migrate = ["ankaek.install.after_install"]
