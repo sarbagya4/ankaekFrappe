@@ -258,4 +258,4 @@ fixtures = [
     {"dt": "Workspace"},
     {"dt": "Website Settings", "filters": [["name", "=", "Website Settings"]]},
 ]
-after_install = "ankaek.install.after_install"
+after_migrate = ["ankaek.install.after_install"]
