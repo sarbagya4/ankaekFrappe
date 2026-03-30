@@ -11,7 +11,9 @@ def rename_desktop_icons():
     ]
     for name, label in renames:
         if frappe.db.exists("Desktop Icon", name):
-            frappe.db.set_value("Desktop Icon", name, "label", label)
+            current_label = frappe.db.get_value("Desktop Icon", name, "label")
+            if current_label != label:
+                frappe.db.set_value("Desktop Icon", name, "label", label)
 
     # Fix ERPNext Settings icon_type
     if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
