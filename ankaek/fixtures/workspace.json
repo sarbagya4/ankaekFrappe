@@ -8806,7 +8806,7 @@
   "link_to": null,
   "link_type": null,
   "links": [],
-  "modified": "2023-07-28 20:15:32.222029",
+  "modified": "2026-03-30 19:39:46.112412",
   "module": "Core",
   "name": "Welcome Workspace",
   "number_cards": [],
@@ -8818,7 +8818,7 @@
   "sequence_id": 22.0,
   "shortcuts": [],
   "title": "Welcome Workspace",
-  "type": null
+  "type": "Workspace"
  },
  {
   "app": "erpnext",
