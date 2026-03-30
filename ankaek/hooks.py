@@ -253,4 +253,7 @@ brand_html = "ankaEK"
 app_logo_url = "/assets/ankaek/images/logo.jpg"
 login_logo_url = "/assets/ankaek/images/logo.jpg"
 favicon = "/assets/ankaek/images/favicon.ico"
-
+fixtures = [
+    {"dt": "Desktop Icon"},
+    {"dt": "Workspace"},
+]
