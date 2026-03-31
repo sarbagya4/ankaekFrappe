@@ -249,7 +249,7 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-brand_html = "ankaEK"
+brand_html = "Lahv+ Enterprise by ankaEK"
 app_logo_url = "/assets/ankaek/images/logo.jpg"
 login_logo_url = "/assets/ankaek/images/logo.jpg"
 favicon = "/assets/ankaek/images/favicon.ico"
