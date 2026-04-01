@@ -47,16 +47,17 @@ def configure_website_settings():
 
 def hide_erp_modules():
     modules_to_hide = [
-        "Accounting", "Assets", "Buying", "Manufacturing",
-        "Organization", "Projects", "Quality", "Selling",
-        "Stock", "Subcontracting", "ankaEK Settings",
-        "ankaEK Build", "CRM", "Support", "Home",
-        "Financial Reports", "Integrations", "Website",
-        "Users", "Build", "Data", "Email", "Printing",
-        "Automation", "System", "Banking", "Budget",
-        "Taxes", "Accounts Setup", "Share Management",
-        "Subscription", "Invoicing", "Payments",
+    "Accounting", "Assets", "Buying", "Manufacturing",
+    "Organization", "Projects", "Quality", "Selling",
+    "Stock", "Subcontracting", "ERPNext Settings",
+    "Framework", "CRM", "Support", "Home",
+    "Financial Reports", "Integrations", "Website",
+    "Users", "Build", "Data", "Email", "Printing",
+    "Automation", "System", "Banking", "Budget",
+    "Taxes", "Accounts Setup", "Share Management",
+    "Subscription", "Invoicing", "Payments",
     ]
+
     for name in modules_to_hide:
         if frappe.db.exists("Desktop Icon", name):
             frappe.db.set_value("Desktop Icon", name, "hidden", 1)
