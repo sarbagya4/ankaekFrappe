@@ -37,6 +37,16 @@ def rename_desktop_icons():
             link = "/desk/leaves"
         frappe.db.set_value("Desktop Icon", "Frappe HR", "link", link)
 
+    # Fix parent_icon for child workspaces
+    child_icons = [
+        "People", "Leaves", "Payroll", "Expenses",
+        "Performance", "Recruitment", "Shift & Attendance",
+        "Tenure", "Tax & Benefits",
+    ]
+    for name in child_icons:
+        if frappe.db.exists("Desktop Icon", name):
+            frappe.db.set_value("Desktop Icon", name, "parent_icon", "ankaEK HR")
+
     frappe.db.commit()
 
 def configure_website_settings():
