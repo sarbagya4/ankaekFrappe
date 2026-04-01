@@ -4,6 +4,7 @@ app_publisher = "ankaEK"
 app_description = "ankaEK "
 app_email = "ankaEK@gmail.com"
 app_license = "mit"
+app_include_css = "/assets/ankaek/css/brand.css"
 
 # Apps
 # ------------------

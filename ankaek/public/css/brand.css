@@ -1,0 +1,8 @@
+/* Hide Frappe HR text and replace with ankaEK HR */
+.sidebar-item-label.header-subtitle {
+    font-size: 0 !important;
+}
+.sidebar-item-label.header-subtitle::after {
+    content: "ankaEK HR";
+    font-size: var(--text-sm);
+}
