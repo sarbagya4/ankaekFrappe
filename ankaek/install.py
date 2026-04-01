@@ -4,7 +4,6 @@ def after_install():
     rename_desktop_icons()
     configure_website_settings()
     hide_erp_modules()
-    rename_workspaces()
 
 def rename_desktop_icons():
     renames = [
@@ -71,14 +70,4 @@ def hide_erp_modules():
     for name in modules_to_hide:
         if frappe.db.exists("Desktop Icon", name):
             frappe.db.set_value("Desktop Icon", name, "hidden", 1)
-    frappe.db.commit()
-
-def rename_workspaces():
-    workspace_renames = [
-        ("People", "ankaEK HR"),
-        ("HR Setup", "ankaEK HR"),
-    ]
-    for name, title in workspace_renames:
-        if frappe.db.exists("Workspace", name):
-            frappe.db.set_value("Workspace", name, "title", title)
     frappe.db.commit()
