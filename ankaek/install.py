@@ -38,7 +38,7 @@ def rename_desktop_icons():
 
     # Fix parent_icon for child workspaces
     child_icons = [
-        "People", "Leaves", "Payroll", "Expenses",
+        "People", "Leaves","HR Setup", "Payroll", "Expenses",
         "Performance", "Recruitment", "Shift & Attendance",
         "Tenure", "Tax & Benefits",
     ]
