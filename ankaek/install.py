@@ -17,6 +17,7 @@ def rename_desktop_icons():
             if current != label:
                 frappe.db.set_value("Desktop Icon", name, "label", label)
 
+    # Fix ERPNext Settings icon type and link
     if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
         frappe.db.set_value("Desktop Icon", "ERPNext Settings", {
             "icon_type": "App",
@@ -25,8 +26,15 @@ def rename_desktop_icons():
             "link_to": None,
         })
 
+    # Fix Frappe HR link — check which workspace exists
     if frappe.db.exists("Desktop Icon", "Frappe HR"):
-        frappe.db.set_value("Desktop Icon", "Frappe HR", "link", "/desk/hr-setup")
+        if frappe.db.exists("Workspace", "People"):
+            link = "/desk/people"
+        elif frappe.db.exists("Workspace", "HR Setup"):
+            link = "/desk/hr-setup"
+        else:
+            link = "/desk/leaves"
+        frappe.db.set_value("Desktop Icon", "Frappe HR", "link", link)
 
     frappe.db.commit()
 
