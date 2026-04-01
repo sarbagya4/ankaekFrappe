@@ -3,6 +3,7 @@ import frappe
 def after_install():
     rename_desktop_icons()
     configure_website_settings()
+    hide_erp_modules()
 
 def rename_desktop_icons():
     renames = [
@@ -12,11 +13,10 @@ def rename_desktop_icons():
     ]
     for name, label in renames:
         if frappe.db.exists("Desktop Icon", name):
-            current_label = frappe.db.get_value("Desktop Icon", name, "label")
-            if current_label != label:
+            current = frappe.db.get_value("Desktop Icon", name, "label")
+            if current != label:
                 frappe.db.set_value("Desktop Icon", name, "label", label)
 
-    # Fix ERPNext Settings — icon type and link
     if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
         frappe.db.set_value("Desktop Icon", "ERPNext Settings", {
             "icon_type": "App",
@@ -25,7 +25,6 @@ def rename_desktop_icons():
             "link_to": None,
         })
 
-    # Fix Frappe HR link to valid workspace
     if frappe.db.exists("Desktop Icon", "Frappe HR"):
         frappe.db.set_value("Desktop Icon", "Frappe HR", "link", "/desk/hr-setup")
 
@@ -34,6 +33,23 @@ def rename_desktop_icons():
 def configure_website_settings():
     doc = frappe.get_doc("Website Settings")
     doc.app_logo = "/assets/ankaek/images/logo.jpg"
-    doc.app_name = "Lahv+ Enterprise by ankaEK"
+    doc.app_name = "ankaEK"
     doc.save(ignore_permissions=True)
+    frappe.db.commit()
+
+def hide_erp_modules():
+    modules_to_hide = [
+        "Accounting", "Assets", "Buying", "Manufacturing",
+        "Organization", "Projects", "Quality", "Selling",
+        "Stock", "Subcontracting", "ankaEK Settings",
+        "ankaEK Build", "CRM", "Support", "Home",
+        "Financial Reports", "Integrations", "Website",
+        "Users", "Build", "Data", "Email", "Printing",
+        "Automation", "System", "Banking", "Budget",
+        "Taxes", "Accounts Setup", "Share Management",
+        "Subscription", "Invoicing", "Payments",
+    ]
+    for name in modules_to_hide:
+        if frappe.db.exists("Desktop Icon", name):
+            frappe.db.set_value("Desktop Icon", name, "hidden", 1)
     frappe.db.commit()
