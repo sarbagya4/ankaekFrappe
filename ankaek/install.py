@@ -75,6 +75,7 @@ def hide_erp_modules():
 
 def update_desktop_icon_logos():
     icon_map = {
+        "Frappe HR":          "/assets/ankaek/images/icons/hr_main_outer.jpg",
         "Expenses":           "/assets/ankaek/images/icons/expenses.jpg",
         "HR Setup":           "/assets/ankaek/images/icons/hr_setup.jpg",
         "Leaves":             "/assets/ankaek/images/icons/leave.jpg",
@@ -98,5 +99,4 @@ def replace_hrms_icons():
     if os.path.exists(icons_source) and os.path.exists(icons_dest):
         for f in os.listdir(icons_source):
             shutil.copy2(os.path.join(icons_source, f), os.path.join(icons_dest, f))
-        # Rebuild hrms assets after copying
         os.system(f"cd {bench_path} && bench build --app hrms")
