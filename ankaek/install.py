@@ -54,7 +54,7 @@ def rename_desktop_icons():
 def configure_website_settings():
     doc = frappe.get_doc("Website Settings")
     doc.app_logo = "/assets/ankaek/images/lahv_plus.jpg"
-    doc.app_name = "ankaEK"
+    doc.app_name = "Lahv+ Enterprise"
     doc.save(ignore_permissions=True)
     frappe.db.commit()
 
