@@ -1,9 +1,13 @@
 import frappe
+import os
+import shutil
 
 def after_install():
     rename_desktop_icons()
     configure_website_settings()
     hide_erp_modules()
+    update_desktop_icon_logos()
+    replace_hrms_icons()
 
 def rename_desktop_icons():
     renames = [
@@ -17,7 +21,6 @@ def rename_desktop_icons():
             if current != label:
                 frappe.db.set_value("Desktop Icon", name, "label", label)
 
-    # Fix ERPNext Settings icon type and link
     if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
         frappe.db.set_value("Desktop Icon", "ERPNext Settings", {
             "icon_type": "App",
@@ -26,7 +29,6 @@ def rename_desktop_icons():
             "link_to": None,
         })
 
-    # Fix Frappe HR link — check which workspace exists
     if frappe.db.exists("Desktop Icon", "Frappe HR"):
         if frappe.db.exists("Workspace", "People"):
             link = "/desk/people"
@@ -36,9 +38,8 @@ def rename_desktop_icons():
             link = "/desk/leaves"
         frappe.db.set_value("Desktop Icon", "Frappe HR", "link", link)
 
-    # Fix parent_icon for child workspaces
     child_icons = [
-        "People", "Leaves","HR Setup", "Payroll", "Expenses",
+        "People", "Leaves", "HR Setup", "Payroll", "Expenses",
         "Performance", "Recruitment", "Shift & Attendance",
         "Tenure", "Tax & Benefits",
     ]
@@ -71,3 +72,31 @@ def hide_erp_modules():
         if frappe.db.exists("Desktop Icon", name):
             frappe.db.set_value("Desktop Icon", name, "hidden", 1)
     frappe.db.commit()
+
+def update_desktop_icon_logos():
+    icon_map = {
+        "Expenses":           "/assets/ankaek/images/icons/expenses.jpg",
+        "HR Setup":           "/assets/ankaek/images/icons/hr_setup.jpg",
+        "Leaves":             "/assets/ankaek/images/icons/leave.jpg",
+        "Payroll":            "/assets/ankaek/images/icons/payroll.jpg",
+        "Performance":        "/assets/ankaek/images/icons/performance.jpg",
+        "Recruitment":        "/assets/ankaek/images/icons/recruitment.jpg",
+        "Shift & Attendance": "/assets/ankaek/images/icons/shift_and_attendance.jpg",
+        "Tax & Benefits":     "/assets/ankaek/images/icons/tax_and_benifits.jpg",
+        "Tenure":             "/assets/ankaek/images/icons/tenure.jpg",
+    }
+    for name, logo_url in icon_map.items():
+        if frappe.db.exists("Desktop Icon", name):
+            frappe.db.set_value("Desktop Icon", name, "logo_url", logo_url)
+    frappe.db.commit()
+
+def replace_hrms_icons():
+    bench_path = frappe.utils.get_bench_path()
+    icons_source = os.path.join(bench_path, "apps", "ankaek", "ankaek", "public", "icons", "solid")
+    icons_dest = os.path.join(bench_path, "apps", "hrms", "hrms", "public", "icons", "desktop_icons", "solid")
+
+    if os.path.exists(icons_source) and os.path.exists(icons_dest):
+        for f in os.listdir(icons_source):
+            shutil.copy2(os.path.join(icons_source, f), os.path.join(icons_dest, f))
+        # Rebuild hrms assets after copying
+        os.system(f"cd {bench_path} && bench build --app hrms")
