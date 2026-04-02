@@ -251,7 +251,7 @@ app_include_css = "/assets/ankaek/css/brand.css"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 brand_html = "Lahv+ Enterprise by ankaEK"
-app_logo_url = "/assets/ankaek/images/lahv_plus.jpg"
+app_logo_url = "/assets/ankaek/images/logo.jpg"
 login_logo_url = "/assets/ankaek/images/logo.jpg"
 favicon = "/assets/ankaek/images/favicon.ico"
 after_install = "ankaek.install.after_install"
