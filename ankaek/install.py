@@ -1,6 +1,7 @@
 import frappe
 import os
 import shutil
+import base64
 
 def after_install():
     rename_desktop_icons()
@@ -8,6 +9,7 @@ def after_install():
     hide_erp_modules()
     update_desktop_icon_logos()
     replace_hrms_icons()
+    replace_frappe_logo()
 
 def rename_desktop_icons():
     renames = [
@@ -51,8 +53,8 @@ def rename_desktop_icons():
 
 def configure_website_settings():
     doc = frappe.get_doc("Website Settings")
-    doc.app_logo = "/assets/ankaek/images/logo.jpg"
-    doc.app_name = "ankaEK"
+    doc.app_logo = "/assets/ankaek/images/lahv_plus.jpg"
+    doc.app_name = "Lahv+ Enterprise"
     doc.save(ignore_permissions=True)
     frappe.db.commit()
 
@@ -100,3 +102,18 @@ def replace_hrms_icons():
         for f in os.listdir(icons_source):
             shutil.copy2(os.path.join(icons_source, f), os.path.join(icons_dest, f))
         os.system(f"cd {bench_path} && bench build --app hrms")
+
+def replace_frappe_logo():
+    bench_path = frappe.utils.get_bench_path()
+    logo_source = os.path.join(bench_path, "apps", "ankaek", "ankaek", "public", "images", "lahv_plus.jpg")
+    logo_dest = os.path.join(bench_path, "apps", "frappe", "frappe", "public", "images", "frappe-framework-logo.svg")
+
+    if os.path.exists(logo_source):
+        with open(logo_source, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode("utf-8")
+        svg_content = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <image href="data:image/jpeg;base64,{b64}" width="100" height="100"/>
+</svg>'''
+        with open(logo_dest, "w") as f:
+            f.write(svg_content)
+        os.system(f"cd {bench_path} && bench build --app frappe")
