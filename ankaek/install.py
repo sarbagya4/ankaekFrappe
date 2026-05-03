@@ -52,7 +52,7 @@ def rename_desktop_icons():
     frappe.db.commit()
 
 def configure_website_settings():
-    doc = frappe.get_doc("Website Settings")
+    doc = frappe.get_doc("Website Settingsss
     doc.app_logo = "/assets/ankaek/images/lahv_plus.jpg"
     doc.app_name = "Lahv+ Enterprise"
     doc.save(ignore_permissions=True)
@@ -60,7 +60,7 @@ def configure_website_settings():
 
 def hide_erp_modules():
     modules_to_hide = [
-        "Accounting", "Assets", "Buying", "Manufacturing",
+        "Accounting", "Buying", "Manufacturing",
         "Organization", "Projects", "Quality", "Selling",
         "Stock", "Subcontracting", "ERPNext Settings",
         "Framework", "CRM", "Support", "Home",
@@ -81,6 +81,7 @@ def update_desktop_icon_logos():
         "Expenses":           "/assets/ankaek/images/icons/expenses.jpg",
         "HR Setup":           "/assets/ankaek/images/icons/hr_setup.jpg",
         "Leaves":             "/assets/ankaek/images/icons/leave.jpg",
+        "Assets"              "/assets/ankaek/images/icons/assets.jpg",
         "Payroll":            "/assets/ankaek/images/icons/payroll.jpg",
         "Performance":        "/assets/ankaek/images/icons/performance.jpg",
         "Recruitment":        "/assets/ankaek/images/icons/recruitment.jpg",
