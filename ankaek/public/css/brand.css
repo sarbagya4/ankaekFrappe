@@ -1,8 +1,23 @@
-/* Hide Frappe HR text and replace with ankaEK HR */
+/* Sidebar group header: "Frappe HR" → "ankaEK HR" */
 .sidebar-item-label.header-subtitle {
     font-size: 0 !important;
 }
 .sidebar-item-label.header-subtitle::after {
+    content: "ankaEK HR";
+    font-size: var(--text-sm);
+}
+
+/* Breadcrumb link: "Frappe HR" → "ankaEK HR"
+   href varies by whichever workspace exists (people / hr-setup / leaves)
+   set at install time by rename_desktop_icons() in install.py */
+a[href="/desk/people"],
+a[href="/desk/hr-setup"],
+a[href="/desk/leaves"] {
+    font-size: 0 !important;
+}
+a[href="/desk/people"]::after,
+a[href="/desk/hr-setup"]::after,
+a[href="/desk/leaves"]::after {
     content: "ankaEK HR";
     font-size: var(--text-sm);
 }
