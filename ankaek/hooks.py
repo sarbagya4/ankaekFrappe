@@ -4,7 +4,17 @@ app_publisher = "ankaEK"
 app_description = "ankaEK "
 app_email = "ankaEK@gmail.com"
 app_license = "mit"
-app_include_css = "/assets/ankaek/css/brand.css"
+# Nepali date picker assets pinned by commit SHA on jsDelivr's GitHub mirror.
+# Pinned ref is immutable; bump it deliberately when upstream changes need pulling in.
+NEPALIDATE_CDN_REF = "5e1f5378c3b1"
+app_include_css = [
+	"/assets/ankaek/css/brand.css",
+	f"https://cdn.jsdelivr.net/gh/rbnkoirala/nepalidate@{NEPALIDATE_CDN_REF}/nepalidate/public/css/nepali.datepicker.css",
+]
+app_include_js = [
+	f"https://cdn.jsdelivr.net/gh/rbnkoirala/nepalidate@{NEPALIDATE_CDN_REF}/nepalidate/public/js/nepali.datepicker.js",
+	"/assets/ankaek/js/nepali_date.js",
+]
 
 # Apps
 # ------------------
