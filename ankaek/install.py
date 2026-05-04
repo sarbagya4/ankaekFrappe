@@ -111,7 +111,7 @@ def patch_hrms_roster_bundle():
     if not os.path.exists(assets_dir):
         return
     for fname in os.listdir(assets_dir):
-        if fname.startswith("index-") and fname.endswith(".js"):
+        if fname.endswith(".js"):
             fpath = os.path.join(assets_dir, fname)
             with open(fpath, "r", encoding="utf-8") as f:
                 content = f.read()
