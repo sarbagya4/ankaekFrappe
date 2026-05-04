@@ -17,6 +17,10 @@ app_include_js = [
 	"/assets/ankaek/js/brand.js",
 ]
 
+# Injected into Frappe website pages — covers HRMS custom pages at /hr/*
+web_include_js = "/assets/ankaek/js/brand.js"
+web_include_css = "/assets/ankaek/css/brand.css"
+
 # Apps
 # ------------------
 
