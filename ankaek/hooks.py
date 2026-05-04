@@ -14,6 +14,7 @@ app_include_css = [
 app_include_js = [
 	f"https://cdn.jsdelivr.net/gh/rbnkoirala/nepalidate@{NEPALIDATE_CDN_REF}/nepalidate/public/js/nepali.datepicker.js",
 	"/assets/ankaek/js/nepali_date.js",
+	"/assets/ankaek/js/brand.js",
 ]
 
 # Apps
