@@ -10,6 +10,7 @@ def after_install():
     update_desktop_icon_logos()
     replace_hrms_icons()
     replace_frappe_logo()
+    patch_hrms_roster_bundle()
 
 def rename_desktop_icons():
     renames = [
@@ -103,6 +104,21 @@ def replace_hrms_icons():
         for f in os.listdir(icons_source):
             shutil.copy2(os.path.join(icons_source, f), os.path.join(icons_dest, f))
         os.system(f"cd {bench_path} && bench build --app hrms")
+
+def patch_hrms_roster_bundle():
+    bench_path = frappe.utils.get_bench_path()
+    assets_dir = os.path.join(bench_path, "sites", "assets", "hrms", "roster", "assets")
+    if not os.path.exists(assets_dir):
+        return
+    for fname in os.listdir(assets_dir):
+        if fname.startswith("index-") and fname.endswith(".js"):
+            fpath = os.path.join(assets_dir, fname)
+            with open(fpath, "r", encoding="utf-8") as f:
+                content = f.read()
+            if "Frappe HR" in content:
+                content = content.replace("Frappe HR", "ankaEK HR")
+                with open(fpath, "w", encoding="utf-8") as f:
+                    f.write(content)
 
 def replace_frappe_logo():
     bench_path = frappe.utils.get_bench_path()
