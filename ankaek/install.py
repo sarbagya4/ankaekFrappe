@@ -11,6 +11,7 @@ def after_install():
     replace_hrms_icons()
     replace_frappe_logo()
     patch_hrms_roster_bundle()
+    add_salary_component_type_field()
 
 def rename_desktop_icons():
     renames = [
@@ -104,6 +105,19 @@ def replace_hrms_icons():
         for f in os.listdir(icons_source):
             shutil.copy2(os.path.join(icons_source, f), os.path.join(icons_dest, f))
         os.system(f"cd {bench_path} && bench build --app hrms")
+
+def add_salary_component_type_field():
+    if not frappe.db.exists("Custom Field", "Salary Component-component_type"):
+        frappe.get_doc({
+            "doctype": "Custom Field",
+            "dt": "Salary Component",
+            "fieldname": "component_type",
+            "label": "Component Type",
+            "fieldtype": "Select",
+            "options": "\nProfessional Tax\nProvident Fund\nESI",
+            "insert_after": "type",
+        }).insert(ignore_permissions=True)
+        frappe.db.commit()
 
 def patch_hrms_roster_bundle():
     bench_path = frappe.utils.get_bench_path()
