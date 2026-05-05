@@ -153,15 +153,29 @@
 		});
 	}
 
+	// Build a local-time JS Date from an ISO datetime string, sidestepping
+	// `new Date("YYYY-MM-DD")` which JS interprets as UTC midnight (and
+	// then renders one day off in negative-offset timezones).
+	function isoToLocalDate(iso) {
+		if (!iso) return null;
+		var parts = String(iso).trim().split(/[\s\-T:]/);
+		if (parts.length < 3) return null;
+		var y = parseInt(parts[0], 10);
+		var m = parseInt(parts[1], 10);
+		var d = parseInt(parts[2], 10);
+		if (!y || !m || !d) return null;
+		var hh = parts[3] ? parseInt(parts[3], 10) : 0;
+		var mm = parts[4] ? parseInt(parts[4], 10) : 0;
+		var ss = parts[5] ? parseInt(parts[5], 10) : 0;
+		return new Date(y, m - 1, d, hh, mm, ss);
+	}
+
 	function attachAdSingle($input, control) {
 		// Re-trigger Frappe's own picker init on the (swapped) $input.
 		// Frappe uses air-datepicker as a jQuery plugin via `make_picker()`
 		// -> `set_date_options()` + `set_datepicker()`, which attaches the
 		// picker to control.$input and stores the instance at
-		// control.datepicker. We don't pass an onChange callback because
-		// Frappe's existing change/blur wiring (preserved by clone(true))
-		// already calls parse() -> set_value(), and our parse pass-through
-		// in AD mode keeps the value as ISO AD.
+		// control.datepicker.
 		$input.attr("autocomplete", "off");
 		$input.removeAttr("placeholder");
 		if (typeof control.make_picker === "function") {
@@ -169,6 +183,25 @@
 		} else if (typeof control.set_datepicker === "function") {
 			if (typeof control.set_date_options === "function") control.set_date_options();
 			control.set_datepicker();
+		}
+
+		// Air-datepicker only auto-parses the input value when its
+		// dateFormat exactly matches what's already there. In edge
+		// cases — e.g., when our toggle ran before the model had a
+		// value, or when Frappe's format string diverges from the
+		// picker's parser grammar — it leaves the calendar empty AND
+		// wipes the input on focus. Programmatically selecting the
+		// date sidesteps both: it highlights the calendar and the
+		// picker treats the input value as authoritative on focus.
+		if (control.datepicker && control.value) {
+			var d = isoToLocalDate(control.value);
+			if (d && typeof control.datepicker.selectDate === "function") {
+				try {
+					control.datepicker.selectDate(d);
+				} catch (e) {
+					/* ignore */
+				}
+			}
 		}
 	}
 
@@ -196,15 +229,20 @@
 				destroyAdPicker(control);
 				destroyBsPicker(control.$input);
 				var $fresh = swapInput(control);
+				setMode(control, mode);
+				// Re-render through Frappe's own pipeline. This routes
+				// the model value through our patched format_for_input
+				// (which branches on mode: BS -> nepalidate format,
+				// AD -> Frappe default), then writes it to $fresh.
+				// The picker, attached next, reads $fresh.val() and
+				// can highlight the date because the displayed format
+				// matches its dateFormat option.
+				if (typeof control.refresh_input === "function") {
+					control.refresh_input();
+				}
 				if (mode === "AD") {
-					setMode(control, "AD");
-					$fresh.val(control.value || "");
 					attachAdSingle($fresh, control);
 				} else {
-					setMode(control, "BS");
-					var v = control.value || "";
-					var bs = v && ISO_DATE.test(v) ? adToBs(v) : "";
-					$fresh.val(bs || v);
 					attachBsSingle($fresh, function (ad) {
 						control.set_value(ad);
 					});
@@ -216,26 +254,18 @@
 
 		ControlDate.prototype.parse = function (value) {
 			var trimmed = value ? String(value).trim() : "";
-			if (trimmed && ISO_DATE.test(trimmed)) {
-				if (getMode(this) === "BS") {
-					var ad = bsToAd(trimmed);
-					if (ad) return ad;
-				} else {
-					return trimmed;
-				}
+			if (trimmed && ISO_DATE.test(trimmed) && getMode(this) === "BS") {
+				var ad = bsToAd(trimmed);
+				if (ad) return ad;
 			}
 			return origParse.apply(this, [value]);
 		};
 
 		ControlDate.prototype.format_for_input = function (value) {
 			var trimmed = value ? String(value).trim() : "";
-			if (trimmed && ISO_DATE.test(trimmed)) {
-				if (getMode(this) === "BS") {
-					var bs = adToBs(trimmed);
-					if (bs) return bs;
-				} else {
-					return trimmed;
-				}
+			if (trimmed && ISO_DATE.test(trimmed) && getMode(this) === "BS") {
+				var bs = adToBs(trimmed);
+				if (bs) return bs;
 			}
 			return origFormatForInput.apply(this, [value]);
 		};
@@ -291,21 +321,20 @@
 				destroyAdPicker(control);
 				destroyBsPicker(control.$input);
 				var $fresh = swapInput(control);
+				setMode(control, mode);
 				if (mode === "AD") {
-					setMode(control, "AD");
-					// Frappe's native datetime picker handles both date and
-					// time, so hide our BS-mode time sibling.
 					$time.hide();
-					var parts = splitDatetime(control.value || "");
-					$fresh.val(parts[0] + (parts[1] ? " " + parts[1] : ""));
-					attachAdSingle($fresh, control);
 				} else {
-					setMode(control, "BS");
 					$time.show();
 					var p2 = splitDatetime(control.value || "");
-					var bs = p2[0] && ISO_DATE.test(p2[0]) ? adToBs(p2[0]) : "";
-					$fresh.val(bs || p2[0]);
 					if (p2[1]) $time.val(p2[1]);
+				}
+				if (typeof control.refresh_input === "function") {
+					control.refresh_input();
+				}
+				if (mode === "AD") {
+					attachAdSingle($fresh, control);
+				} else {
 					attachBsSingle($fresh, emitWithDate);
 				}
 			});
@@ -316,13 +345,9 @@
 		ControlDatetime.prototype.parse = function (value) {
 			if (!value) return origDtParse.apply(this, [value]);
 			var parts = splitDatetime(value);
-			if (ISO_DATE.test(parts[0])) {
-				if (getMode(this) === "BS") {
-					var ad = bsToAd(parts[0]);
-					if (ad) return ad + " " + parts[1];
-				} else {
-					return parts[0] + " " + parts[1];
-				}
+			if (ISO_DATE.test(parts[0]) && getMode(this) === "BS") {
+				var ad = bsToAd(parts[0]);
+				if (ad) return ad + " " + parts[1];
 			}
 			return origDtParse.apply(this, [value]);
 		};
@@ -330,16 +355,12 @@
 		ControlDatetime.prototype.format_for_input = function (value) {
 			if (!value) return origDtFormatForInput.apply(this, [value]);
 			var parts = splitDatetime(value);
-			if (ISO_DATE.test(parts[0])) {
+			if (ISO_DATE.test(parts[0]) && getMode(this) === "BS") {
 				if (this.$bs_time_input && this.$bs_time_input.length) {
 					this.$bs_time_input.val(parts[1]);
 				}
-				if (getMode(this) === "BS") {
-					var bs = adToBs(parts[0]);
-					if (bs) return bs + " " + parts[1];
-				} else {
-					return parts[0] + " " + parts[1];
-				}
+				var bs = adToBs(parts[0]);
+				if (bs) return bs + " " + parts[1];
 			}
 			return origDtFormatForInput.apply(this, [value]);
 		};
@@ -431,8 +452,11 @@
 					control.$input.css("display", "");
 					setMode(control, "AD");
 
-					var arr = readRange();
-					control.$input.val(arr ? arr[0] + " to " + arr[1] : "");
+					// Re-render through Frappe's pipeline so format_for_input
+					// runs and writes the AD-formatted range to $input.
+					if (typeof control.refresh_input === "function") {
+						control.refresh_input();
+					}
 
 					// Frappe's ControlDateRange has its own range picker;
 					// re-trigger init on the now-visible original input.
@@ -448,13 +472,13 @@
 					$wrap.show();
 					setMode(control, "BS");
 
-					var arr2 = readRange();
-					if (arr2 && ISO_DATE.test(arr2[0]) && ISO_DATE.test(arr2[1])) {
-						$start.val(adToBs(arr2[0]) || arr2[0]);
-						$end.val(adToBs(arr2[1]) || arr2[1]);
-					} else {
-						$start.val("");
-						$end.val("");
+					// refresh_input writes to control.$input (hidden) but our
+					// format_for_input also fills $bs_range_from/$bs_range_to
+					// when in BS mode. Calling it ensures the BS pickers are
+					// pre-populated even if the model changed since last
+					// render.
+					if (typeof control.refresh_input === "function") {
+						control.refresh_input();
 					}
 					attachBsRange();
 				}
@@ -464,13 +488,10 @@
 		};
 
 		ControlDateRange.prototype.parse = function (value) {
-			if (Array.isArray(value) && value.length === 2) {
-				if (getMode(this) === "BS") {
-					var f = ISO_DATE.test(value[0]) ? bsToAd(value[0]) || value[0] : value[0];
-					var t = ISO_DATE.test(value[1]) ? bsToAd(value[1]) || value[1] : value[1];
-					return [f, t];
-				}
-				return value;
+			if (Array.isArray(value) && value.length === 2 && getMode(this) === "BS") {
+				var f = ISO_DATE.test(value[0]) ? bsToAd(value[0]) || value[0] : value[0];
+				var t = ISO_DATE.test(value[1]) ? bsToAd(value[1]) || value[1] : value[1];
+				return [f, t];
 			}
 			return origDrParse.apply(this, [value]);
 		};
@@ -484,17 +505,19 @@
 					arr = null;
 				}
 			}
-			if (Array.isArray(arr) && arr.length === 2 && ISO_DATE.test(arr[0]) && ISO_DATE.test(arr[1])) {
-				if (getMode(this) === "BS") {
-					var bsFrom = adToBs(arr[0]);
-					var bsTo = adToBs(arr[1]);
-					if (bsFrom && bsTo) {
-						if (this.$bs_range_from && this.$bs_range_from.length) this.$bs_range_from.val(bsFrom);
-						if (this.$bs_range_to && this.$bs_range_to.length) this.$bs_range_to.val(bsTo);
-						return bsFrom + " to " + bsTo;
-					}
-				} else {
-					return arr[0] + " to " + arr[1];
+			if (
+				Array.isArray(arr) &&
+				arr.length === 2 &&
+				ISO_DATE.test(arr[0]) &&
+				ISO_DATE.test(arr[1]) &&
+				getMode(this) === "BS"
+			) {
+				var bsFrom = adToBs(arr[0]);
+				var bsTo = adToBs(arr[1]);
+				if (bsFrom && bsTo) {
+					if (this.$bs_range_from && this.$bs_range_from.length) this.$bs_range_from.val(bsFrom);
+					if (this.$bs_range_to && this.$bs_range_to.length) this.$bs_range_to.val(bsTo);
+					return bsFrom + " to " + bsTo;
 				}
 			}
 			return origDrFormatForInput.apply(this, [value]);
